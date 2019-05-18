@@ -60,6 +60,9 @@
             "path": "./pnpjs"
         },
         {
+            "path": "./project"
+        },
+        {
             "path": "./sp"
         },
         {
