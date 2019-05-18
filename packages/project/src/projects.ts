@@ -44,7 +44,11 @@ export class ProjectCollection extends ProjectQueryableCollection {
      * @param parameters The properties of the project to create
      */
     public async add(parameters: ProjectCreationInformation): Promise<CommandResult<PublishedProject>> {
-        const data = await this.postCore({ body: jsS(parameters) });
+        this.concat("/add");
+        const params: any = {
+            "parameters": parameters,
+        };
+        const data = await this.postCore({ body: jsS(params) });
         return { data: data, instance: this.getById(data.Id) };
     }
 }
@@ -285,25 +289,25 @@ export interface ProjectCreationInformation {
     /**
      * Gets or sets the description of the project
      */
-    description?: string;
+    Description?: string;
 
     /**
      * Gets or sets the GUID of the enterprise project type (EPT)
      */
-    enterpriseProjectTypeId?: string;
+    EnterpriseProjectTypeId?: string;
 
     /**
      * Gets or sets the GUID of the project
      */
-    id?: string;
+    Id?: string;
 
     /**
      * Gets or sets the name of the project
      */
-    name: string;
+    Name: string;
 
     /**
      * Gets or sets the start date of the project
      */
-    start?: Date;
+    Start?: Date;
 }
