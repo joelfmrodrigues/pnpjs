@@ -272,10 +272,11 @@ export class ProjectQueryableInstance extends ProjectQueryable {
      * @param type 
      * @param mapper 
      */
-    protected _update<Return, Props = any, Data = any>(type: string, mapper: (data: Data, props: Props) => Return): (props: Props) => Promise<Return> {
+    protected _update<Return, Props = any, Data = any>(type: string, mapper: (data: Data, props: Props) => Return, eTag = "*"): (props: Props) => Promise<Return> {
         return (props: any) => this.postCore({
             body: jsS(extend(metadata(type), props)),
             headers: {
+                "IF-Match": eTag,
                 "X-HTTP-Method": "MERGE",
             },
         }).then((d: Data) => mapper(d, props));
