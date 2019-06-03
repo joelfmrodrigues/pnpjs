@@ -264,7 +264,7 @@ export class ProjectQueryableCollection<GetType = any[]> extends ProjectQueryabl
  * Represents an instance that can be selected
  *
  */
-export class ProjectQueryableInstance extends ProjectQueryable {
+export class ProjectQueryableInstance<GetType = any> extends ProjectQueryable<GetType> {
 
     /**
      * Curries the update function into the common pieces
