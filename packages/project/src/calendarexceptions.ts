@@ -28,7 +28,11 @@ export class CalendarExceptionCollection extends ProjectQueryableCollection {
      * @param parameters An object that contains information, for example start and finish times and dates, about a new calendar exception
      */
     public async add(parameters: CalendarExceptionCreationInformation): Promise<CommandResult<CalendarException>> {
-        const data = await this.postCore({ body: jsS(parameters) });
+        this.concat("/add");
+        const params: any = {
+            "parameters": parameters,
+        };
+        const data = await this.postCore({ body: jsS(params) });
         return { data: data, instance: this.getById(data.Id) };
     }
 }
@@ -65,97 +69,97 @@ export interface CalendarExceptionCreationInformation {
     /**
      * Gets or sets the date and time that the calendar exception ends
      */
-    finish?: Date;
+    Finish?: Date;
 
     /**
      * Gets or sets the name given for the calendar exception, such as Vacation
      */
-    name?: string;
+    Name?: string;
 
     /**
      * Gets or sets a mask that represents the days of the week on which the calendar exception is effective
      */
-    recurrenceDays?: CalendarRecurrenceDays;
+    RecurrenceDays?: CalendarRecurrenceDays;
 
     /**
      * Gets or sets the interval at which the calendar exception occurs
      */
-    recurrenceFrequency?: number;
+    RecurrenceFrequency?: number;
 
     /**
      * Gets or sets the month when setting a yearly recurrence
      */
-    recurrenceMonth?: number;
+    RecurrenceMonth?: number;
 
     /**
      * Gets or sets the day of the month when setting a yearly recurrence
      */
-    recurrenceMonthDay?: number;
+    RecurrenceMonthDay?: number;
 
     /**
      * Gets or sets the recurrence type for the calendar exception
      */
-    recurrenceType?: CalendarRecurrenceType;
+    RecurrenceType?: CalendarRecurrenceType;
 
     /**
      * Gets or sets the week number of a monthly occurrence
      */
-    recurrenceWeek?: CalendarRecurrenceWeek;
+    RecurrenceWeek?: CalendarRecurrenceWeek;
 
     /**
      * Gets or sets the minute of the day that the first shift ends
      */
-    shift1Finish?: number;
+    Shift1Finish?: number;
 
     /**
      * Gets or sets the minute of the day that the first shift starts
      */
-    shift1Start?: number;
+    Shift1Start?: number;
 
     /**
      * Gets or sets the minute of the day that the second shift ends
      */
-    shift2Finish?: number;
+    Shift2Finish?: number;
 
     /**
      * Gets or sets the minute of the day that the second shift starts
      */
-    shift2Start?: number;
+    Shift2Start?: number;
 
     /**
      * Gets or sets the minute of the day that the third shift ends
      */
-    shift3Finish?: number;
+    Shift3Finish?: number;
 
     /**
      * Gets or sets the minute of the day that the third shift starts
      */
-    shift3Start?: number;
+    Shift3Start?: number;
 
     /**
      * Gets or sets the minute of the day that the fourth shift ends
      */
-    shift4Finish?: number;
+    Shift4Finish?: number;
 
     /**
      * Gets or sets the minute of the day that the fourth shift starts
      */
-    shift4Start?: number;
+    Shift4Start?: number;
 
     /**
      * Gets or sets the minute of the day that the fifth shift ends
      */
-    shift5Finish?: number;
+    Shift5Finish?: number;
 
     /**
      * Gets or sets the minute of the day that the fifth shift starts
      */
-    shift5Start?: number;
+    Shift5Start?: number;
 
     /**
      * Gets or sets the date and time that the calendar exception starts
      */
-    start?: Date;
+    Start?: Date;
 }
 
 /**

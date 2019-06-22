@@ -30,7 +30,11 @@ export class CalendarCollection extends ProjectQueryableCollection {
      * @param parameters An object that contains information, for example name and GUID, about a new calendar
      */
     public async add(parameters: CalendarCreationInformation): Promise<CommandResult<Calendar>> {
-        const data = await this.postCore({ body: jsS(parameters) });
+        this.concat("/add");
+        const params: any = {
+            "parameters": parameters,
+        };
+        const data = await this.postCore({ body: jsS(params) });
         return { data: data, instance: this.getById(data.Id) };
     }
 }
@@ -71,15 +75,15 @@ export interface CalendarCreationInformation {
     /**
      * Gets or sets the GUID of the new calendar
      */
-    id?: string;
+    Id?: string;
 
     /**
      * Gets or sets the name of the new calendar
      */
-    name?: string;
+    Name?: string;
 
     /**
      * Gets or sets the original GUID of the new calendar
      */
-    originalId?: string;
+    OriginalId?: string;
 }
