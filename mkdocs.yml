@@ -24,8 +24,6 @@ nav:
       - blobutil: 'common/docs/blobutil.md'
       - collections: 'common/docs/collections.md'
       - 'Custom HttpClientImpl': 'common/docs/custom-httpclientimpl.md'
-      - decorators: 'common/docs/decorators.md'
-      - exceptions: 'common/docs/exceptions.md'
       - libconfig: 'common/docs/libconfig.md'
       - netutil: 'common/docs/netutil.md'
       - storage: 'common/docs/storage.md'
@@ -98,6 +96,8 @@ nav:
       - Terms: 'sp-taxonomy/docs/terms.md'
       - Labels: 'sp-taxonomy/docs/labels.md'
       - Utilities: 'sp-taxonomy/docs/utilities.md'
+  - 'V2 Beta Docs':
+    - Beta Docs: 'documentation/v2-beta'
 theme:
   name: 'material'
   custom_dir: 'packages/documentation/theme'

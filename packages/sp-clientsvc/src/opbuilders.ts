@@ -35,7 +35,7 @@ export class MethodParams implements IMethodParamsBuilder {
 
     public static build(initValues: { type: PropertyType, value: string }[] = []): IMethodParamsBuilder {
         const params = new MethodParams();
-        [].push.apply(params._p, initValues);
+        [].push.apply(params._p, <any>initValues);
         return params;
     }
 
@@ -64,6 +64,7 @@ export class MethodParams implements IMethodParamsBuilder {
     }
 
     private a(type: PropertyType, value: string): this {
+        value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
         this._p.push({ type, value });
         return this;
     }
@@ -79,7 +80,7 @@ export function method(name: string, params: IMethodParamsBuilder, ...actions: s
             builder.push(`<Parameters />`);
         } else {
             builder.push(`<Parameters>`);
-            [].push.apply(builder, arrParams.map(p => {
+            [].push.apply(builder, <any>arrParams.map(p => {
 
                 if (p.type === "ObjectPath") {
                     return `<Parameter ObjectPathId="$$OP_PARAM_ID_${p.value}$$" />`;

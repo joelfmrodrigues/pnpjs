@@ -4,7 +4,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 1.3.6 - 2019-10-11
+
+### Added
+
+- @pnp/sp: Added addUsingPath method to Folders [[PR](https://github.com/pnp/pnpjs/pull/870)]
+- @pnp/graph: Added manager property to user [[PR](https://github.com/pnp/pnpjs/pull/870)]
+- @pnp/sp-taxonomy: Added delete method to term [[PR](https://github.com/pnp/pnpjs/pull/870)]
+
+### Fixed
+
+- @pnp/sp: Fixed Folder.moveTo url bug ([@nsoeth](https://github.com/nsoeth)) [[PR](https://github.com/pnp/pnpjs/pull/833)]
+- @pnp/sp: Fixed for getCurrentUserEffectivePermissions and low permission users ([@koltyakov](https://github.com/koltyakov)) [[PR](https://github.com/pnp/pnpjs/pull/846)]
+- docs: Added missing hubSiteId method parameter to docs [[PR](https://github.com/pnp/pnpjs/pull/870)]
+- @pnp/sp: Fixed bug with createCommunicationSite method parsing response [[PR](https://github.com/pnp/pnpjs/pull/870)]
+
+## 1.3.5 - 2019-08-16
+
+### Added
+
+- @pnp/graph: Added user calendar endpoint ([@JakeStanger](https://github.com/JakeStanger)) [[PR](https://github.com/pnp/pnpjs/pull/789)]
+- @pnp/graph: Added telemetry tracking header [[PR](https://github.com/pnp/pnpjs/pull/794)]
+- @pnp/sp-clientsvc: Added escaping for XML chars in request bodies [[PR](https://github.com/pnp/pnpjs/pull/820)]
+
+### Fixed
+
+- @pnp/sp: Fixed typing issue with SecondaryQueryResults [[PR](https://github.com/pnp/pnpjs/pull/819)]
+
+## 1.3.4 - 2019-07-12
+
+### Added
+
+- @pnp/graph: setEndpoint method of GraphQueryable now public [[PR](https://github.com/pnp/pnpjs/pull/779)]
+- @pnp/graph: added photo to User ([@JakeStanger](https://github.com/JakeStanger)) [[PR](https://github.com/pnp/pnpjs/pull/776)]
+- @pnp/sp: Added entity merging and docs for Items getPaged method [[PR](https://github.com/pnp/pnpjs/pull/771)]
+- @pnp/sp: Added site design parameter to createModernTeamSite method [[PR](https://github.com/pnp/pnpjs/pull/769)]
+- @pnp/sp: Added Item recycle method ([@gitbrent](https://github.com/gitbrent)) [[PR](https://github.com/pnp/pnpjs/pull/752)]
+- @pnp/sp: Added site delete and communication site creation ([@KEMiCZA](https://github.com/KEMiCZA)) [[PR](https://github.com/pnp/pnpjs/pull/738)]
+- @pnp/sp: Added many site designs methods ([@KEMiCZA](https://github.com/KEMiCZA)) [[PR](https://github.com/pnp/pnpjs/pull/733)]
+
+### Fixed
+
+- @pnp/nodejs: Fixed SPTokenUtils to use shared fetch method [[PR](https://github.com/pnp/pnpjs/pull/770)]
+- @pnp/sp: Fixed issue with BasePermissions parsing [[PR](https://github.com/pnp/pnpjs/pull/768)]
+- @pnp/sp: Fixed issues with loading single page app client side pages [[PR](https://github.com/pnp/pnpjs/pull/735)]
+- @pnp/graph: Fixed item create parameters typings bug [[PR](https://github.com/pnp/pnpjs/pull/764)]
+- documentation: Fixed broken nav links [[PR](https://github.com/pnp/pnpjs/pull/763)]
+- @pnp/nodejs: Fixed import issue with AdalCertificateFetchClient ([@cebud](https://github.com/cebud)) [[PR](https://github.com/pnp/pnpjs/pull/729)]
 
 ## 1.3.3 - 2019-06-03
 
