@@ -1,10 +1,11 @@
 import { SharePointQueryableCollection, SharePointQueryableInstance, defaultPath } from "./sharepointqueryable";
 import { TextParser, BlobParser, JSONParser, BufferParser } from "@pnp/odata";
-import { extend, getGUID, stringIsNullOrEmpty } from "@pnp/common";
+import { extend, getGUID, stringIsNullOrEmpty, jsS, isUrlAbsolute } from "@pnp/common";
 import { LimitedWebPartManager } from "./webparts";
 import { Item } from "./items";
 import { SharePointQueryableShareableFile } from "./sharepointqueryableshareable";
 import { odataUrlFrom } from "./odata";
+import { extractWebUrl } from "./utils/extractweburl";
 
 export interface ChunkedFileUploadProgressData {
     uploadId: string;
@@ -122,7 +123,7 @@ export class Files extends SharePointQueryableCollection {
         shouldOverWrite = true,
         chunkSize = 10485760,
     ): Promise<FileAddResult> {
-        const adder = this.clone(Files, `add(overwrite = ${ shouldOverWrite }, url = '${url}')`, false);
+        const adder = this.clone(Files, `add(overwrite = ${shouldOverWrite}, url = '${url}')`, false);
         return adder.postCore()
             .then(() => this.getByName(url))
             .then(file => file.setContentChunked(content, progress, chunkSize));
@@ -136,7 +137,7 @@ export class Files extends SharePointQueryableCollection {
      * @returns The template file that was added and the raw response.
      */
     public addTemplateFile(fileUrl: string, templateFileType: TemplateFileType): Promise<FileAddResult> {
-        return this.clone(Files, `addTemplateFile(urloffile = '${fileUrl}', templatefiletype = ${ templateFileType })`, false)
+        return this.clone(Files, `addTemplateFile(urloffile = '${fileUrl}', templatefiletype = ${templateFileType})`, false)
             .postCore().then((response) => {
                 return {
                     data: response,
@@ -203,7 +204,7 @@ export class File extends SharePointQueryableShareableFile {
             throw Error("The maximum comment length is 1023 characters.");
         }
 
-        return this.clone(File, `checkin(comment = '${comment}', checkintype = ${ checkinType })`).postCore();
+        return this.clone(File, `checkin(comment = '${comment}', checkintype = ${checkinType})`).postCore();
     }
 
     /**
@@ -220,7 +221,46 @@ export class File extends SharePointQueryableShareableFile {
      * @param shouldOverWrite Should a file with the same name in the same location be overwritten?
      */
     public copyTo(url: string, shouldOverWrite = true): Promise<void> {
-        return this.clone(File, `copyTo(strnewurl = '${url}', boverwrite = ${ shouldOverWrite })`).postCore();
+        return this.clone(File, `copyTo(strnewurl = '${url}', boverwrite = ${shouldOverWrite})`).postCore();
+    }
+
+    /**
+     * Copies the file by path to destination path
+     *
+     * @param destUrl The absolute url or server relative url of the destination file path to copy to.
+     * @param shouldOverWrite Should a file with the same name in the same location be overwritten?
+     * @param keepBoth Keep both if file with the same name in the same location already exists? Only relevant when shouldOverWrite is set to false.
+     */
+    public copyByPath(destUrl: string, shouldOverWrite: boolean, KeepBoth = false): Promise<void> {
+        return this.select("ServerRelativeUrl").get().then(({ ServerRelativeUrl: srcUrl, ["odata.id"]: absoluteUrl }) => {
+            const webBaseUrl = extractWebUrl(absoluteUrl);
+            const hostUrl = webBaseUrl.replace("://", "___").split("/")[0].replace("___", "://");
+            const f = new File(webBaseUrl, `/_api/SP.MoveCopyUtil.CopyFileByPath(overwrite=@a1)?@a1=${shouldOverWrite}`);
+            return f.postCore({
+                body: jsS({
+                    destPath: {
+                        DecodedUrl: isUrlAbsolute(destUrl) ? destUrl : `${hostUrl}${destUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                    options: {
+                        KeepBoth: KeepBoth,
+                        ResetAuthorAndCreatedOnCopy: true,
+                        ShouldBypassSharedLocks: true,
+                        __metadata: {
+                            type: "SP.MoveCopyOptions",
+                        },
+                    },
+                    srcPath: {
+                        DecodedUrl: `${hostUrl}${srcUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                }),
+            });
+        });
     }
 
     /**
@@ -257,7 +297,7 @@ export class File extends SharePointQueryableShareableFile {
      * @param scope The WebPartsPersonalizationScope view on the Web Parts page.
      */
     public getLimitedWebPartManager(scope = WebPartsPersonalizationScope.Shared): LimitedWebPartManager {
-        return new LimitedWebPartManager(this, `getLimitedWebPartManager(scope = ${ scope })`);
+        return new LimitedWebPartManager(this, `getLimitedWebPartManager(scope = ${scope})`);
     }
 
     /**
@@ -267,7 +307,43 @@ export class File extends SharePointQueryableShareableFile {
      * @param moveOperations The bitwise MoveOperations value for how to move the file.
      */
     public moveTo(url: string, moveOperations = MoveOperations.Overwrite): Promise<void> {
-        return this.clone(File, `moveTo(newurl = '${url}', flags = ${ moveOperations })`).postCore();
+        return this.clone(File, `moveTo(newurl = '${url}', flags = ${moveOperations})`).postCore();
+    }
+
+    /**
+     * Moves the file by path to the specified destination url.
+     *
+     * @param destUrl The absolute url or server relative url of the destination file path to move to.
+     * @param shouldOverWrite Should a file with the same name in the same location be overwritten?
+     * @param keepBoth Keep both if file with the same name in the same location already exists? Only relevant when shouldOverWrite is set to false.
+     */
+    public moveByPath(destUrl: string, shouldOverWrite: boolean, KeepBoth = false): Promise<void> {
+        return this.select("ServerRelativeUrl").get().then(({ ServerRelativeUrl: srcUrl, ["odata.id"]: absoluteUrl }) => {
+            const webBaseUrl = extractWebUrl(absoluteUrl);
+            const hostUrl = webBaseUrl.replace("://", "___").split("/")[0].replace("___", "://");
+            const f = new File(webBaseUrl, `/_api/SP.MoveCopyUtil.MoveFileByPath(overwrite=@a1)?@a1=${shouldOverWrite}`);
+            return f.postCore({
+                body: jsS({
+                    destPath: {
+                        DecodedUrl: isUrlAbsolute(destUrl) ? destUrl : `${hostUrl}${destUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                    options: {
+                        KeepBoth: KeepBoth,
+                        ResetAuthorAndCreatedOnCopy: false,
+                        ShouldBypassSharedLocks: true,
+                    },
+                    srcPath: {
+                        DecodedUrl: `${hostUrl}${srcUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                }),
+            });
+        });
     }
 
     /**
@@ -448,7 +524,7 @@ export class File extends SharePointQueryableShareableFile {
      * @returns The size of the total uploaded data in bytes.
      */
     protected continueUpload(uploadId: string, fileOffset: number, fragment: ArrayBuffer | Blob): Promise<number> {
-        return this.clone(File, `continueUpload(uploadId = guid'${uploadId}', fileOffset = ${ fileOffset })`, false)
+        return this.clone(File, `continueUpload(uploadId = guid'${uploadId}', fileOffset = ${fileOffset})`, false)
             .postCore<string>({ body: fragment })
             .then(n => {
                 // When OData=verbose the payload has the following shape:
@@ -471,7 +547,7 @@ export class File extends SharePointQueryableShareableFile {
      * @returns The newly uploaded file.
      */
     protected finishUpload(uploadId: string, fileOffset: number, fragment: ArrayBuffer | Blob): Promise<FileAddResult> {
-        return this.clone(File, `finishUpload(uploadId = guid'${uploadId}', fileOffset = ${ fileOffset })`, false)
+        return this.clone(File, `finishUpload(uploadId = guid'${uploadId}', fileOffset = ${fileOffset})`, false)
             .postCore<{ ServerRelativeUrl: string }>({ body: fragment })
             .then(response => {
                 return {
@@ -496,7 +572,7 @@ export class Versions extends SharePointQueryableCollection {
      */
     public getById(versionId: number): Version {
         const v = new Version(this);
-        v.concat(`(${ versionId })`);
+        v.concat(`(${versionId})`);
         return v;
     }
 
@@ -514,7 +590,7 @@ export class Versions extends SharePointQueryableCollection {
      * @param versionId The ID of the file version to delete.
      */
     public deleteById(versionId: number): Promise<void> {
-        return this.clone(Versions, `deleteById(vid = ${ versionId })`).postCore();
+        return this.clone(Versions, `deleteById(vid = ${versionId})`).postCore();
     }
 
     /**
@@ -523,7 +599,7 @@ export class Versions extends SharePointQueryableCollection {
      * @param versionId The ID of the file version to delete.
      */
     public recycleByID(versionId: number): Promise<void> {
-        return this.clone(Versions, `recycleByID(vid = ${ versionId })`).postCore();
+        return this.clone(Versions, `recycleByID(vid = ${versionId})`).postCore();
     }
 
     /**

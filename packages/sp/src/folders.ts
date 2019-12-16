@@ -199,6 +199,82 @@ export class Folder extends SharePointQueryableShareableFolder {
             });
         });
     }
+
+    /**
+     * Copies a folder by path to destination path
+     *
+     * @param destUrl Absolute or relative URL of the destination path
+     * @param keepBoth Keep both if folder with the same name in the same location already exists?
+     */
+    public copyByPath(destUrl: string, keepBoth: boolean): Promise<void> {
+        return this.select("ServerRelativeUrl").get().then(({ ServerRelativeUrl: srcUrl, ["odata.id"]: absoluteUrl }) => {
+            const webBaseUrl = extractWebUrl(absoluteUrl);
+            const hostUrl = webBaseUrl.replace("://", "___").split("/")[0].replace("___", "://");
+            const f = new Folder(webBaseUrl, "/_api/SP.MoveCopyUtil.CopyFolderByPath()");
+            return f.postCore({
+                body: jsS({
+                    destPath: {
+                        DecodedUrl: isUrlAbsolute(destUrl) ? destUrl : `${hostUrl}${destUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                    options: {
+                        KeepBoth: keepBoth,
+                        ResetAuthorAndCreatedOnCopy: true,
+                        ShouldBypassSharedLocks: true,
+                        __metadata: {
+                            type: "SP.MoveCopyOptions",
+                        },
+                    },
+                    srcPath: {
+                        DecodedUrl: `${hostUrl}${srcUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                }),
+            });
+        });
+    }
+
+    /**
+     * Moves a folder by path to destination path
+     *
+     * @param destUrl Absolute or relative URL of the destination path
+     * @param keepBoth Keep both if folder with the same name in the same location already exists?
+     */
+    public moveByPath(destUrl: string, keepBoth: boolean): Promise<void> {
+        return this.select("ServerRelativeUrl").get().then(({ ServerRelativeUrl: srcUrl, ["odata.id"]: absoluteUrl }) => {
+            const webBaseUrl = extractWebUrl(absoluteUrl);
+            const hostUrl = webBaseUrl.replace("://", "___").split("/")[0].replace("___", "://");
+            const f = new Folder(webBaseUrl, "/_api/SP.MoveCopyUtil.MoveFolderByPath()");
+            return f.postCore({
+                body: jsS({
+                    destPath: {
+                        DecodedUrl: isUrlAbsolute(destUrl) ? destUrl : `${hostUrl}${destUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                    options: {
+                        KeepBoth: keepBoth,
+                        ResetAuthorAndCreatedOnCopy: false,
+                        ShouldBypassSharedLocks: true,
+                        __metadata: {
+                            type: "SP.MoveCopyOptions",
+                        },
+                    },
+                    srcPath: {
+                        DecodedUrl: `${hostUrl}${srcUrl}`,
+                        __metadata: {
+                            type: "SP.ResourcePath",
+                        },
+                    },
+                }),
+            });
+        });
+    }
 }
 
 export interface FolderAddResult {
